@@ -17,6 +17,7 @@ class _CreateBlogState extends State<CreateBlog> {
   File selectedImage;
   final picker = ImagePicker();
 
+  // Get Image from Gallery
   Future getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
@@ -29,7 +30,7 @@ class _CreateBlogState extends State<CreateBlog> {
     });
   }
 
-  //
+  // Upload image to Cloud Storage then Add Data To Firestore
   uploadBlog() async {
     if (selectedImage != null) {
       setState(() {
@@ -48,6 +49,17 @@ class _CreateBlogState extends State<CreateBlog> {
         try {
           var downloadURL = await firebaseStorageRef.getDownloadURL();
           print("this is url $downloadURL");
+          Map<String, String> blogMap = {
+            "imgUrl": downloadURL,
+            "authorName": authorName,
+            "title": title,
+            "desc": desc
+          };
+
+          /// Add Data to Firestore
+          crudMethods.addData(blogMap).then((result) {
+            Navigator.pop(context);
+          });
         } catch (onError) {
           print("Error");
         }
@@ -55,16 +67,6 @@ class _CreateBlogState extends State<CreateBlog> {
       // var downloadUrl =
       //     await (await task.whenComplete(() => null)).ref.getDownloadURL();
 
-      // Map<String, String> blogMap = {
-      //   "imgUrl": //downloadURL,
-      //   "authorName": authorName,
-      //   "title": title,
-      //   "desc": desc
-      // };
-      Navigator.pop(context);
-      // crudMethods.addData(blogMap).then((result) {
-      //
-      // });
     } else {}
   }
 
